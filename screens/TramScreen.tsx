@@ -26,7 +26,7 @@ export default function TramScreen({ navigation }: RootTabScreenProps<"Tram">) {
             labelStyle={styles.label}
             buttonColor="#deac2e"
             onPress={() => {
-              navigation.navigate("Modal", {
+              navigation.navigate("Detalii", {
                 param: tram.param,
               });
             }}

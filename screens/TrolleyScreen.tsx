@@ -29,7 +29,7 @@ export default function TrolleyScreen({
             labelStyle={styles.label}
             buttonColor="#672590"
             onPress={() => {
-              navigation.navigate("Modal", {
+              navigation.navigate("Detalii", {
                 param: trolley.param,
               });
             }}

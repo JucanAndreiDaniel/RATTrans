@@ -63,7 +63,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 labelStyle={styles.label}
                 buttonColor="#53867b"
                 onPress={() => {
-                  navigation.navigate("Modal", {
+                  navigation.navigate("Detalii", {
                     param: bus.param,
                   });
                 }}
@@ -89,7 +89,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 labelStyle={styles.label}
                 buttonColor="#eb8740"
                 onPress={() => {
-                  navigation.navigate("Modal", {
+                  navigation.navigate("Detalii", {
                     param: bus.param,
                   });
                 }}
@@ -115,7 +115,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 labelStyle={styles.label}
                 buttonColor="#3b3f92"
                 onPress={() => {
-                  navigation.navigate("Modal", {
+                  navigation.navigate("Detalii", {
                     param: bus.param,
                   });
                 }}
