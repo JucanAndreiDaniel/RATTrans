@@ -4,7 +4,6 @@ import { Button } from "react-native-paper";
 import { View } from "../components/Themed";
 import { RootTabScreenProps } from "../types";
 
-
 export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
   const autobuze1 = [
     { id: "3", param: 1207 },
@@ -142,8 +141,8 @@ const styles = StyleSheet.create({
   },
   separator: {
     marginVertical: 30,
-    height: 1,
-    width: "80%",
+    height: 3,
+    width: "85%",
   },
   button: {
     margin: 8,
