@@ -22,7 +22,7 @@ export default function ModalScreen({ route }: any) {
   const [isExtended, setIsExtended] = React.useState(true);
   const [refresh, setRefresh] = React.useState(true);
 
-  var cheerio = require("react-native-cheerio");
+  let cheerio = require("react-native-cheerio");
   const getTables = (html: AxiosResponse<any, any>) => {
     const $ = cheerio.load(html.data);
     const tableElements = $("html body ul table td b");
@@ -38,6 +38,10 @@ export default function ModalScreen({ route }: any) {
 
   React.useEffect(() => {
     setLoading(true);
+    setStatieDus([]);
+    setStatieIntors([]);
+    setTimpDus([]);
+    setTimpIntors([]);
     axios
       .get("http://86.125.113.218:61978/html/timpi/trasee.php?param1=" + param)
       .then(getTables)
@@ -45,7 +49,6 @@ export default function ModalScreen({ route }: any) {
         let i: number = -1;
         tables.each((index: any, table: any) => {
           let text: string = cheerio.load(table).text();
-          // console.log(index, " ", text);
           if (text.startsWith("Linia ")) {
             i++;
             setLinia((linia: any) => [...linia, text]);
