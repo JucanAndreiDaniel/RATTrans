@@ -1,14 +1,26 @@
 import { StatusBar } from "expo-status-bar";
-import { Platform, ScrollView, StyleSheet } from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, Platform, ScrollView, StyleSheet } from "react-native";
 import axios, { AxiosResponse } from "axios";
 import React from "react";
+import {
+  DataTable,
+  Text,
+  ActivityIndicator,
+  AnimatedFAB,
+} from "react-native-paper";
 
-// import EditScreenInfo from "../components/EditScreenInfo";
-import { Text, View } from "../components/Themed";
+import { View } from "../components/Themed";
 
 export default function ModalScreen({ route }: any) {
   const { param } = route.params;
-  const [data, setData] = React.useState<any>([]);
+  const [statieDus, setStatieDus] = React.useState<any>([]);
+  const [statieIntors, setStatieIntors] = React.useState<any>([]);
+  const [timpDus, setTimpDus] = React.useState<any>([]);
+  const [timpIntors, setTimpIntors] = React.useState<any>([]);
+  const [linia, setLinia] = React.useState<any>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [isExtended, setIsExtended] = React.useState(true);
+  const [refresh, setRefresh] = React.useState(true);
 
   var cheerio = require("react-native-cheerio");
   const getTables = (html: AxiosResponse<any, any>) => {
@@ -16,37 +28,114 @@ export default function ModalScreen({ route }: any) {
     const tableElements = $("html body ul table td b");
     return tableElements;
   };
+
+  const onScroll = ({ nativeEvent }:NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentScrollPosition =
+      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
+
+    setIsExtended(currentScrollPosition <= 0);
+  };
+
   React.useEffect(() => {
+    setLoading(true);
     axios
       .get("http://86.125.113.218:61978/html/timpi/trasee.php?param1=" + param)
       .then(getTables)
-      .then((tables) =>
-        tables.each((_: any, table: any) => {
+      .then((tables) => {
+        let i: number = -1;
+        tables.each((index: any, table: any) => {
           let text: string = cheerio.load(table).text();
-          if (!text.startsWith("Sosire") && text != "Stația")
-            setData((data: any) => [...data, text]);
-          // console.log(text);
-        })
-      );
-  }, []);
+          // console.log(index, " ", text);
+          if (text.startsWith("Linia ")) {
+            i++;
+            setLinia((linia: any) => [...linia, text]);
+          }
+          if (i == 0) {
+            if (
+              !text.startsWith("Sosire") &&
+              text != "Stația" &&
+              !text.startsWith("Linia ")
+            )
+              if (index % 2 == 1)
+                setStatieDus((statieDus: any) => [...statieDus, text]);
+              else setTimpDus((timpDus: any) => [...timpDus, text]);
+          } else {
+            if (
+              !text.startsWith("Sosire") &&
+              text != "Stația" &&
+              !text.startsWith("Linia ")
+            )
+              if (index % 2 == 0)
+                setStatieIntors((statieIntors: any) => [...statieIntors, text]);
+              else setTimpIntors((timpIntors: any) => [...timpIntors, text]);
+          }
+        });
+        setLoading(false);
+      });
+  }, [refresh]);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {data.map((item: any) => {
-          return <Text style={styles.title}>{item}</Text>;
-        })}
-
-        <View
-          style={styles.separator}
-          lightColor="#eee"
-          darkColor="rgba(255,255,255,0.1)"
+    <>
+      {loading ? (
+        <ActivityIndicator
+          animating={true}
+          size="large"
+          style={styles.loader}
         />
+      ) : (
+        <View>
+          <ScrollView onScroll={onScroll}>
+            <View style={styles.container}>
+              <Text variant="titleLarge">{linia[0]}</Text>
+              <DataTable>
+                <DataTable.Header>
+                  <DataTable.Title>Stația</DataTable.Title>
+                  <DataTable.Title>Sosire</DataTable.Title>
+                </DataTable.Header>
+                {statieDus.map((statie: string, index: number) => {
+                  return (
+                    <DataTable.Row>
+                      <DataTable.Cell>{statie}</DataTable.Cell>
+                      <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
+                    </DataTable.Row>
+                  );
+                })}
+              </DataTable>
+              <View
+                style={styles.separator}
+                lightColor="#eee"
+                darkColor="rgba(255,255,255,0.1)"
+              />
+              <Text variant="titleLarge">{linia[1]}</Text>
+              <DataTable>
+                <DataTable.Header>
+                  <DataTable.Title>Stația</DataTable.Title>
+                  <DataTable.Title>Sosire</DataTable.Title>
+                </DataTable.Header>
+                {statieIntors.map((statie: string, index: number) => {
+                  return (
+                    <DataTable.Row>
+                      <DataTable.Cell>{statie}</DataTable.Cell>
+                      <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
+                    </DataTable.Row>
+                  );
+                })}
+              </DataTable>
 
-        {/* Use a light status bar on iOS to account for the black space above the modal */}
-        <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
-      </View>
-    </ScrollView>
+              {/* Use a light status bar on iOS to account for the black space above the modal */}
+              <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+            </View>
+          </ScrollView>
+          <AnimatedFAB
+            icon="refresh"
+            label={"Refresh"}
+            extended={isExtended}
+            style={styles.fab}
+            onPress={() => setRefresh(!refresh)}
+          />
+        </View>
+      )}
+    </>
   );
 }
 
@@ -63,6 +152,16 @@ const styles = StyleSheet.create({
   separator: {
     marginVertical: 30,
     height: 1,
-    width: "80%",
+    width: "90%",
+  },
+  loader: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fab: {
+    bottom: 16,
+    right: 16,
+    position: "absolute",
   },
 });
