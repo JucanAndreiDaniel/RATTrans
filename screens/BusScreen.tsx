@@ -53,6 +53,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
   return (
     <ScrollView>
       <View style={styles.container}>
+      <View style={styles.topbar}/>
         {autobuze1.map((bus) => {
           return (
             <>
@@ -143,6 +144,11 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 3,
     width: "85%",
+  },
+  topbar: {
+    marginVertical: 30,
+    height: 1,
+    width: "90%",
   },
   button: {
     margin: 8,

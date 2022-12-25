@@ -18,10 +18,12 @@ export default function TramScreen({ navigation }: RootTabScreenProps<"Tram">) {
 
   return (
     <View style={styles.container}>
-      {trams.map((tram) => {
+      <View style={styles.topbar}/>
+      {trams.map((tram,index) => {
         return (
           <Button
             mode="contained-tonal"
+            key={index}
             style={styles.button}
             labelStyle={styles.label}
             buttonColor="#deac2e"
@@ -47,6 +49,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
+  },
+  topbar: {
+    marginVertical: 30,
+    height: 1,
+    width: "90%",
   },
   button: {
     margin: 8,

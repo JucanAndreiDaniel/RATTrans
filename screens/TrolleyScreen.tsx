@@ -21,6 +21,7 @@ export default function TrolleyScreen({
 
   return (
     <View style={styles.container}>
+      <View style={styles.topbar}/>
       {trolleys.map((trolley) => {
         return (
           <Button
@@ -56,6 +57,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     justifyContent: "center",
+  },
+  topbar: {
+    marginVertical: 30,
+    height: 1,
+    width: "90%",
   },
   label: {
     fontSize: 20,
