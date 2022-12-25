@@ -4,7 +4,7 @@
  *
  */
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
   NavigationContainer,
   DefaultTheme,
@@ -74,7 +74,7 @@ function RootNavigator() {
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
-const BottomTab = createBottomTabNavigator<RootTabParamList>();
+const BottomTab = createMaterialTopTabNavigator<RootTabParamList>();
 
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
@@ -83,8 +83,9 @@ function BottomTabNavigator() {
     <BottomTab.Navigator
       initialRouteName="Tram"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        // tabBarActiveTintColor: Colors[colorScheme].tint,
       }}
+      tabBarPosition="bottom"
     >
       <BottomTab.Screen
         name="Tram"
@@ -92,7 +93,7 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<"Tram">) => ({
           title: "Tramvai",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="tram" color={color} size={30} />
+            <MaterialCommunityIcons name="tram" color={color} size={25} />
           ),
         })}
       />
@@ -102,7 +103,7 @@ function BottomTabNavigator() {
         options={{
           title: "Autobuz",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bus" color={color} size={30} />
+            <MaterialCommunityIcons name="bus" color={color} size={25} />
           ),
         }}
       />
@@ -111,7 +112,7 @@ function BottomTabNavigator() {
         component={TrolleyScreen}
         options={{
           title: "Troleibuz",
-          tabBarIcon: ({ color }) => <Trolley color={color} size={30} />,
+          tabBarIcon: ({ color }) => <Trolley color={color} size={25} />,
         }}
       />
     </BottomTab.Navigator>
