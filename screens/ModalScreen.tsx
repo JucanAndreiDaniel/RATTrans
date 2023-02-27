@@ -1,6 +1,12 @@
 import { StatusBar } from "expo-status-bar";
-import { NativeScrollEvent, NativeSyntheticEvent, Platform, ScrollView, StyleSheet } from "react-native";
-import axios, { AxiosResponse } from "axios";
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { AxiosResponse } from "axios";
 import React from "react";
 import {
   DataTable,
@@ -10,6 +16,14 @@ import {
 } from "react-native-paper";
 
 import { View } from "../components/Themed";
+import { getData } from "../hooks/getData";
+
+let cheerio = require("react-native-cheerio");
+const getTables = (html: AxiosResponse<any, any> | undefined) => {
+  const $ = cheerio.load(html?.data);
+  const tableElements = $("html body ul table td b");
+  return tableElements;
+};
 
 export default function ModalScreen({ route }: any) {
   const { param } = route.params;
@@ -22,31 +36,44 @@ export default function ModalScreen({ route }: any) {
   const [isExtended, setIsExtended] = React.useState(true);
   const [refresh, setRefresh] = React.useState(true);
 
-  let cheerio = require("react-native-cheerio");
-  const getTables = (html: AxiosResponse<any, any>) => {
-    const $ = cheerio.load(html.data);
-    const tableElements = $("html body ul table td b");
-    return tableElements;
+  const emptyArrays = () => {
+    setStatieDus([]);
+    setStatieIntors([]);
+    setTimpDus([]);
+    setTimpIntors([]);
+    setLinia([]);
   };
 
-  const onScroll = ({ nativeEvent }:NativeSyntheticEvent<NativeScrollEvent>) => {
+  const setStatieTimp = (
+    text: string,
+    index: number,
+    setStatie: React.Dispatch<any>,
+    setTimp: React.Dispatch<any>
+  ) => {
+    if (
+      !text.startsWith("Sosire") &&
+      text != "Stația" &&
+      !text.startsWith("Linia ")
+    )
+      if (index % 2 == 1) setStatie((statie: any) => [...statie, text]);
+      else setTimp((timp: any) => [...timp, text]);
+  };
+
+  const onScroll = ({
+    nativeEvent,
+  }: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentScrollPosition =
       Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
-
     setIsExtended(currentScrollPosition <= 0);
   };
 
   React.useEffect(() => {
     setLoading(true);
-    setStatieDus([]);
-    setStatieIntors([]);
-    setTimpDus([]);
-    setTimpIntors([]);
-    axios
-      .get("http://86.125.113.218:61978/html/timpi/trasee.php?param1=" + param)
+    emptyArrays();
+    getData(param)
       .then(getTables)
       .then((tables) => {
-        let i: number = -1;
+        let i: number = -1; //count to separate data in different arrays per "Linia "
         tables.each((index: any, table: any) => {
           let text: string = cheerio.load(table).text();
           if (text.startsWith("Linia ")) {
@@ -54,23 +81,9 @@ export default function ModalScreen({ route }: any) {
             setLinia((linia: any) => [...linia, text]);
           }
           if (i == 0) {
-            if (
-              !text.startsWith("Sosire") &&
-              text != "Stația" &&
-              !text.startsWith("Linia ")
-            )
-              if (index % 2 == 1)
-                setStatieDus((statieDus: any) => [...statieDus, text]);
-              else setTimpDus((timpDus: any) => [...timpDus, text]);
+            setStatieTimp(text, index, setStatieDus, setTimpDus);
           } else {
-            if (
-              !text.startsWith("Sosire") &&
-              text != "Stația" &&
-              !text.startsWith("Linia ")
-            )
-              if (index % 2 == 0)
-                setStatieIntors((statieIntors: any) => [...statieIntors, text]);
-              else setTimpIntors((timpIntors: any) => [...timpIntors, text]);
+            setStatieTimp(text, index, setStatieIntors, setTimpIntors);
           }
         });
         setLoading(false);
@@ -97,7 +110,7 @@ export default function ModalScreen({ route }: any) {
                 </DataTable.Header>
                 {statieDus.map((statie: string, index: number) => {
                   return (
-                    <DataTable.Row>
+                    <DataTable.Row key={`${statie}+${index}`}>
                       <DataTable.Cell>{statie}</DataTable.Cell>
                       <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
                     </DataTable.Row>
@@ -117,7 +130,7 @@ export default function ModalScreen({ route }: any) {
                 </DataTable.Header>
                 {statieIntors.map((statie: string, index: number) => {
                   return (
-                    <DataTable.Row>
+                    <DataTable.Row key={`${statie}+${index}`}>
                       <DataTable.Cell>{statie}</DataTable.Cell>
                       <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
                     </DataTable.Row>
