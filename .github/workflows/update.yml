@@ -38,5 +38,5 @@ jobs:
       - name: 💾 Save build result
         uses: actions/upload-artifact@v3
         with:
-          name: GardimApp
+          name: RATTrans
           path: ${{ github.workspace }}/*.apk
