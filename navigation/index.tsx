@@ -3,8 +3,8 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import {
   NavigationContainer,
   DefaultTheme,
@@ -12,10 +12,8 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { ColorSchemeName, Pressable } from "react-native";
+import { ColorSchemeName } from "react-native";
 
-import Colors from "../constants/Colors";
-import useColorScheme from "../hooks/useColorScheme";
 import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import TramScreen from "../screens/TramScreen";
@@ -77,13 +75,22 @@ function RootNavigator() {
 const BottomTab = createMaterialTopTabNavigator<RootTabParamList>();
 
 function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
 
   return (
     <BottomTab.Navigator
       initialRouteName="Tram"
       screenOptions={{
-        // tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarIconStyle: {
+          width: 34,
+          height: 34,
+          padding: 0 
+        },
+        tabBarIndicatorStyle: {
+          height: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+        },
       }}
       tabBarPosition="bottom"
     >
@@ -93,7 +100,7 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<"Tram">) => ({
           title: "Tramvai",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="tram" color={color} size={25} />
+            <MaterialCommunityIcons name="tram" color={color} size={34} />
           ),
         })}
       />
@@ -103,7 +110,7 @@ function BottomTabNavigator() {
         options={{
           title: "Autobuz",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bus" color={color} size={25} />
+            <MaterialCommunityIcons name="bus" color={color} size={34} />
           ),
         }}
       />
@@ -112,19 +119,9 @@ function BottomTabNavigator() {
         component={TrolleyScreen}
         options={{
           title: "Troleibuz",
-          tabBarIcon: ({ color }) => <Trolley color={color} size={25} />,
+          tabBarIcon: ({ color }) => <Trolley color={color} size={34} />,
         }}
       />
     </BottomTab.Navigator>
   );
-}
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
-  color: string;
-}) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
 }
