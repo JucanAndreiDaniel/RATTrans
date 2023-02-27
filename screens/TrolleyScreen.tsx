@@ -21,12 +21,14 @@ export default function TrolleyScreen({
 
   return (
     <View style={styles.container}>
-      <View style={styles.topbar}/>
-      {trolleys.map((trolley) => {
+      <View style={styles.topbar} />
+      {trolleys.map((trolley, index) => {
         return (
           <Button
             mode="contained"
+            key={index}
             style={styles.button}
+            contentStyle={styles.contentStyle}
             labelStyle={styles.label}
             buttonColor="#672590"
             onPress={() => {
@@ -57,6 +59,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     justifyContent: "center",
+  },
+  contentStyle: {
+    width: 100,
+    height: 100,
   },
   topbar: {
     marginVertical: 30,

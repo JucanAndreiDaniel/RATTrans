@@ -61,6 +61,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 key={bus.id}
                 mode="contained-tonal"
                 style={styles.button}
+                contentStyle={styles.contentStyle}
                 labelStyle={styles.label}
                 buttonColor="#53867b"
                 onPress={() => {
@@ -87,6 +88,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 key={bus.id}
                 mode="contained-tonal"
                 style={styles.button}
+                contentStyle={styles.contentStyle}
                 labelStyle={styles.label}
                 buttonColor="#eb8740"
                 onPress={() => {
@@ -113,6 +115,7 @@ export default function BusScreen({ navigation }: RootTabScreenProps<"Bus">) {
                 key={bus.id}
                 mode="contained-tonal"
                 style={styles.button}
+                contentStyle={styles.contentStyle}
                 labelStyle={styles.label}
                 buttonColor="#3b3f92"
                 onPress={() => {
@@ -155,6 +158,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     justifyContent: "center",
+  },
+  contentStyle: {
+    width: 100,
+    height: 100,
   },
   label: {
     fontSize: 20,
