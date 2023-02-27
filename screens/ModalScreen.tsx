@@ -73,17 +73,17 @@ export default function ModalScreen({ route }: any) {
     getData(param)
       .then(getTables)
       .then((tables) => {
-        let i: number = -1; //count to separate data in different arrays per "Linia "
+        let i: number = 0; //count to separate data in different arrays per "Linia "
         tables.each((index: any, table: any) => {
           let text: string = cheerio.load(table).text();
           if (text.startsWith("Linia ")) {
             i++;
             setLinia((linia: any) => [...linia, text]);
           }
-          if (i == 0) {
+          if (i % 2 == 1) {
             setStatieTimp(text, index, setStatieDus, setTimpDus);
           } else {
-            setStatieTimp(text, index, setStatieIntors, setTimpIntors);
+            setStatieTimp(text, index + 1, setStatieIntors, setTimpIntors);
           }
         });
         setLoading(false);
@@ -92,65 +92,66 @@ export default function ModalScreen({ route }: any) {
 
   return (
     <>
-      {loading ? (
-        <ActivityIndicator
-          animating={true}
-          size="large"
-          style={styles.loader}
-        />
-      ) : (
-        <View>
-          <ScrollView onScroll={onScroll}>
-            <View style={styles.container}>
-              <Text variant="titleLarge">{linia[0]}</Text>
-              <DataTable>
-                <DataTable.Header>
-                  <DataTable.Title>Stația</DataTable.Title>
-                  <DataTable.Title>Sosire</DataTable.Title>
-                </DataTable.Header>
-                {statieDus.map((statie: string, index: number) => {
-                  return (
-                    <DataTable.Row key={`${statie}+${index}`}>
-                      <DataTable.Cell>{statie}</DataTable.Cell>
-                      <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
-                    </DataTable.Row>
-                  );
-                })}
-              </DataTable>
-              <View
-                style={styles.separator}
-                lightColor="#eee"
-                darkColor="rgba(255,255,255,0.1)"
-              />
-              <Text variant="titleLarge">{linia[1]}</Text>
-              <DataTable>
-                <DataTable.Header>
-                  <DataTable.Title>Stația</DataTable.Title>
-                  <DataTable.Title>Sosire</DataTable.Title>
-                </DataTable.Header>
-                {statieIntors.map((statie: string, index: number) => {
-                  return (
-                    <DataTable.Row key={`${statie}+${index}`}>
-                      <DataTable.Cell>{statie}</DataTable.Cell>
-                      <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
-                    </DataTable.Row>
-                  );
-                })}
-              </DataTable>
-
-              {/* Use a light status bar on iOS to account for the black space above the modal */}
-              <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
-            </View>
-          </ScrollView>
-          <AnimatedFAB
-            icon="refresh"
-            label={"Refresh"}
-            extended={isExtended}
-            style={styles.fab}
-            onPress={() => setRefresh(!refresh)}
+      <View style={{ height: "100%" }}>
+        {loading ? (
+          <ActivityIndicator
+            animating={true}
+            size="large"
+            style={styles.loader}
           />
-        </View>
-      )}
+        ) : (
+          <>
+            <ScrollView onScroll={onScroll}>
+              <View style={styles.container}>
+                <Text variant="titleLarge">{linia[0]}</Text>
+                <DataTable>
+                  <DataTable.Header>
+                    <DataTable.Title>Stația</DataTable.Title>
+                    <DataTable.Title>Sosire</DataTable.Title>
+                  </DataTable.Header>
+                  {statieDus.map((statie: string, index: number) => {
+                    return (
+                    <DataTable.Row key={`${statie}+${index}`}>
+                        <DataTable.Cell>{statie}</DataTable.Cell>
+                        <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
+                      </DataTable.Row>
+                    );
+                  })}
+                </DataTable>
+                <View
+                  style={styles.separator}
+                  lightColor="#eee"
+                  darkColor="rgba(255,255,255,0.1)"
+                />
+                <Text variant="titleLarge">{linia[1]}</Text>
+                <DataTable>
+                  <DataTable.Header>
+                    <DataTable.Title>Stația</DataTable.Title>
+                    <DataTable.Title>Sosire</DataTable.Title>
+                  </DataTable.Header>
+                  {statieIntors.map((statie: string, index: number) => {
+                    return (
+                    <DataTable.Row key={`${statie}+${index}`}>
+                        <DataTable.Cell>{statie}</DataTable.Cell>
+                        <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
+                      </DataTable.Row>
+                    );
+                  })}
+                </DataTable>
+                {/* Use a light status bar on iOS to account for the black space above the modal */}
+                <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+              </View>
+            </ScrollView>
+          </>
+        )}
+        <AnimatedFAB
+          icon="refresh"
+          label={"Refresh"}
+          extended={isExtended}
+          style={styles.fab}
+          onPress={() => setRefresh(!refresh)}
+        />
+      </View>
     </>
   );
 }
