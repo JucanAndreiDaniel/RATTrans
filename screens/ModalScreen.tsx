@@ -7,13 +7,14 @@ import {
   StyleSheet,
 } from "react-native";
 import { AxiosResponse } from "axios";
-import React from "react";
+import React, { useCallback } from "react";
 import {
   DataTable,
   Text,
   ActivityIndicator,
   AnimatedFAB,
 } from "react-native-paper";
+import NetInfo from "@react-native-community/netinfo";
 
 import { View } from "../components/Themed";
 import { getData } from "../hooks/getData";
@@ -33,8 +34,9 @@ export default function ModalScreen({ route }: any) {
   const [timpIntors, setTimpIntors] = React.useState<any>([]);
   const [linia, setLinia] = React.useState<any>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [isExtended, setIsExtended] = React.useState(true);
-  const [refresh, setRefresh] = React.useState(true);
+  const [isExtended, setIsExtended] = React.useState<boolean>(true);
+  const [isOffline, setOfflineStatus] = React.useState<boolean>(false);
+  const [refresh, setRefresh] = React.useState<boolean>(true);
 
   const emptyArrays = () => {
     setStatieDus([]);
@@ -67,9 +69,11 @@ export default function ModalScreen({ route }: any) {
     setIsExtended(currentScrollPosition <= 0);
   };
 
-  React.useEffect(() => {
+  const loadData = useCallback(() => {
+    let status: boolean = false;
     setLoading(true);
     emptyArrays();
+    console.log("spam");
     getData(param)
       .then(getTables)
       .then((tables) => {
@@ -86,73 +90,101 @@ export default function ModalScreen({ route }: any) {
             setStatieTimp(text, index + 1, setStatieIntors, setTimpIntors);
           }
         });
+      })
+      .then(() => {
+        status = true;
+        isOffline && setOfflineStatus(false);
+      })
+      .catch(() => {
+        status = false;
+      })
+      .finally(() => {
         setLoading(false);
       });
-  }, [refresh]);
+    return status;
+  }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      const offline = !(state.isConnected && state.isInternetReachable);
+      setOfflineStatus(offline);
+    });
+    loadData();
+    return () => unsubscribe();
+  }, [refresh, isOffline]);
 
   return (
-    <>
-      <View style={{ height: "100%" }}>
-        {loading ? (
-          <ActivityIndicator
-            animating={true}
-            size="large"
-            style={styles.loader}
+    <View style={{ height: "100%" }}>
+      {!isOffline ? (
+        <>
+          {loading ? (
+            <>
+              <ActivityIndicator
+                animating={true}
+                size="large"
+                style={styles.loader}
+              />
+            </>
+          ) : (
+            <>
+              <ScrollView onScroll={onScroll}>
+                <View style={styles.container}>
+                  <Text variant="titleLarge">{linia[0]}</Text>
+                  <DataTable>
+                    <DataTable.Header>
+                      <DataTable.Title>Stația</DataTable.Title>
+                      <DataTable.Title>Sosire</DataTable.Title>
+                    </DataTable.Header>
+                    {statieDus.map((statie: string, index: number) => {
+                      return (
+                        <DataTable.Row key={`${statie}+${index}`}>
+                          <DataTable.Cell>{statie}</DataTable.Cell>
+                          <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
+                        </DataTable.Row>
+                      );
+                    })}
+                  </DataTable>
+                  <View
+                    style={styles.separator}
+                    lightColor="#eee"
+                    darkColor="rgba(255,255,255,0.1)"
+                  />
+                  <Text variant="titleLarge">{linia[1]}</Text>
+                  <DataTable>
+                    <DataTable.Header>
+                      <DataTable.Title>Stația</DataTable.Title>
+                      <DataTable.Title>Sosire</DataTable.Title>
+                    </DataTable.Header>
+                    {statieIntors.map((statie: string, index: number) => {
+                      return (
+                        <DataTable.Row key={`${statie}+${index}`}>
+                          <DataTable.Cell>{statie}</DataTable.Cell>
+                          <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
+                        </DataTable.Row>
+                      );
+                    })}
+                  </DataTable>
+                  {/* Use a light status bar on iOS to account for the black space above the modal */}
+                  <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+                </View>
+              </ScrollView>
+            </>
+          )}
+          <AnimatedFAB
+            icon="refresh"
+            label={"Refresh"}
+            extended={isExtended}
+            style={styles.fab}
+            onPress={() => setRefresh(!refresh)}
           />
-        ) : (
-          <>
-            <ScrollView onScroll={onScroll}>
-              <View style={styles.container}>
-                <Text variant="titleLarge">{linia[0]}</Text>
-                <DataTable>
-                  <DataTable.Header>
-                    <DataTable.Title>Stația</DataTable.Title>
-                    <DataTable.Title>Sosire</DataTable.Title>
-                  </DataTable.Header>
-                  {statieDus.map((statie: string, index: number) => {
-                    return (
-                    <DataTable.Row key={`${statie}+${index}`}>
-                        <DataTable.Cell>{statie}</DataTable.Cell>
-                        <DataTable.Cell>{timpDus[index]}</DataTable.Cell>
-                      </DataTable.Row>
-                    );
-                  })}
-                </DataTable>
-                <View
-                  style={styles.separator}
-                  lightColor="#eee"
-                  darkColor="rgba(255,255,255,0.1)"
-                />
-                <Text variant="titleLarge">{linia[1]}</Text>
-                <DataTable>
-                  <DataTable.Header>
-                    <DataTable.Title>Stația</DataTable.Title>
-                    <DataTable.Title>Sosire</DataTable.Title>
-                  </DataTable.Header>
-                  {statieIntors.map((statie: string, index: number) => {
-                    return (
-                    <DataTable.Row key={`${statie}+${index}`}>
-                        <DataTable.Cell>{statie}</DataTable.Cell>
-                        <DataTable.Cell>{timpIntors[index]}</DataTable.Cell>
-                      </DataTable.Row>
-                    );
-                  })}
-                </DataTable>
-                {/* Use a light status bar on iOS to account for the black space above the modal */}
-                <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
-              </View>
-            </ScrollView>
-          </>
-        )}
-        <AnimatedFAB
-          icon="refresh"
-          label={"Refresh"}
-          extended={isExtended}
-          style={styles.fab}
-          onPress={() => setRefresh(!refresh)}
-        />
-      </View>
-    </>
+        </>
+      ) : (
+        <View style={styles.loader}>
+          <Text>No internet connection</Text>
+          <Text>Please connect to the internet for the page to reload</Text>
+        </View>
+      )}
+    </View>
   );
 }
 
